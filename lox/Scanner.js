@@ -97,7 +97,7 @@ class Scanner {
   }
 
   _peekNext() {
-    if (this.current + 1 >= this.source.length()) 
+    if (this.current + 1 >= this.source.length) 
       return '\0'
     return this.source.charAt(this.current + 1)
   }
