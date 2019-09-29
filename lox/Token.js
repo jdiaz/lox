@@ -1,11 +1,8 @@
+const TokenType = require('./TokenType')
+
 class Token {
 
-	tokenType
-	lexeme
-	literal
-	line
-
-	construct(type, lexeme, literal, line) {
+	constructor(type, lexeme, literal, line) {
 		this.tokenType = type
 		this.lexeme = lexeme
 		this.literal = literal
@@ -13,8 +10,15 @@ class Token {
 	}
 
 	toString() {
-		return `${this.tokenType} ${this.lexeme} ${this.literal}`
+		let tokenName = null
+		for (const [key, value] of Object.entries(TokenType)) {
+			if (this.tokenType === value) {
+				tokenName = key
+				break
+			}
+		}
+		return `${tokenName} ${this.tokenType} ${this.lexeme} ${this.literal || ''}`
 	}
 }
 
-module.export = Token
+module.exports = Token

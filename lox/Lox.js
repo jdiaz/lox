@@ -1,67 +1,54 @@
 const fs = require('fs')
-const readline = require('readline')
-const scanner = require('./Scanner')
+const stdin = process.openStdin()
+const {log, level, logError} = require('./log')
+const Scanner = require('./Scanner')
 
 class Lox {
 	
-	hadError = false
+	constructor() {
+		this.hadError = false
+	}
 
 	main() {
 		const args = process.argv
-		if (args.length > 1) {
-			console.log('Usage: jlox [script]');
+		if (args.length > 3) {
+			log('Usage: jlox [script]', level.INFO, true);
 			process.exit(64)
-		} else if (args.length == 1) {
-			this._runFile(args[0])
+		} else if (args.length == 3) {
+			this._runFile(args[2])
 		} else {
-			this_.runPrompt()
+			this._runPrompt()
 		}
 	}
 
 	_runFile(path) {
 		fs.readFile(path, (err, source) => {
 			if (err) 
-				console.error(err);
+				log(err, level.ERROR, true)
+
 			this._run(source)
-			if (hadError) System.exit(65);
+
+			if (this.hadError)
+				System.exit(65)
 		});
 	}
 
 	_runPrompt() {
-		const rl = readline.createInterface({
- 		  input: process.stdin,
-  	  output: process.stdout
+		log('>> ')
+		stdin.addListener('data', data => {
+			this._run(String(data))
+			log('>> ')
 		})
-
-		while (1) {
-			rl.question('>> ', (value) => {
-				this._run(value)
-				rl.close()
-				hadError = false
-			})
-		}
 	}
 
 	_run(source) {
-		// TODO
-		const scanner = new Scanner()
-		tokens = scanner.scanTokens()
+		const sc = new Scanner(source)
+		const tokens = sc.scanTokens()
 
-		for (token in tokens) {
-			console.log(token)
+		for (const token of tokens) {
+			log(token.toString(), level.INFO, true)
 		}
-
 	}
-
-	_error(line, msg) {
-		this_.report(line, '', msg)
-	}
-
-	_report(line, where, msg) {
-		console.error(`[line ${line}] Error ${where}: ${msg}`)
-		hadError = true
-	}
-
 }
 
 module.exports = Lox;
