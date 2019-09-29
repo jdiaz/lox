@@ -64,7 +64,7 @@ class Scanner {
             this._advance()
         } else if (this._match('*')) {
           // Multiline comment block goes until */ is found
-          let err = null
+          let err = false
           while (this._peek() !== '*' && this._peekNext() !== '/') {
             this._advance()
             if (this._isAtEnd()) {
