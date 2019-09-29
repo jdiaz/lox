@@ -57,10 +57,6 @@ class Scanner {
         break
       case '"': this._string()
         break
-      case 'o':
-        if (this._peek() === 'r') 
-          this._addToken(TokenType.OR)
-        break
       case '/':                                                       
         if (this._match('/')) {
           // A comment goes until the end of the line.                
