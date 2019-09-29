@@ -60,8 +60,23 @@ class Scanner {
       case '/':                                                       
         if (this._match('/')) {
           // A comment goes until the end of the line.                
-          while (this._peek() != '\n' && !this._isAtEnd())
+          while (this._peek() !== '\n' && !this._isAtEnd())
             this._advance()
+        } else if (this._match('*')) {
+          // Multiline comment block goes until */ is found
+          let err = null
+          while (this._peek() !== '*' && this._peekNext() !== '/') {
+            this._advance()
+            if (this._isAtEnd()) {
+              err = true
+              logError(this.line, '', 'Unterminated comment block.')
+              break
+            }
+          }
+          if (!err) {
+            this._advance() // skip * char
+            this._advance() // skip / char
+          }
         } else {
           this._addToken(TokenType.SLASH)
         }
