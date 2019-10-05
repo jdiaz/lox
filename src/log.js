@@ -24,14 +24,33 @@ function color(msg, level) {
 }
 
 function log(msg, level = Level.INFO, newline = null) {
+  // Acceptable values are 
+  const processLevel = process.env.LEVEL != null ? process.env.LEVEL : null
+  // Print log msg if level matches with process set environment
+  if (!levelMatch(processLevel, level) && level !== Level.INFO)
+    return
+
   if (typeof msg !== 'string')
     msg = String(msg)
-  //msg += ' Trace: ' + console.trace()
+
   if (newline != null) {
     println(color(msg, level))
     return
   }
   print(color(msg, level))
+}
+
+function levelMatch(strLevel, numLev) {
+  if (strLevel == null || strLevel === '')
+    return false
+
+  const labels = Object.keys(Level)
+  for (label of labels) {
+    if (Level[strLevel.toUpperCase()] === label) 
+      return true
+  }
+
+  return false
 }
 
 function logError(line, where, msg) {
