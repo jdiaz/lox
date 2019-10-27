@@ -14,7 +14,7 @@ class AstPrinter {
   }
 
   visitGroupingExpr(expr) {
-    return this.parenthesize("group", [expr.expression])
+    return this.parenthesize('group', [expr.expression])
   }                  
   
   visitLiteralExpr(expr) {                

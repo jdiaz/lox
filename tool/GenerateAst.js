@@ -34,9 +34,7 @@ class GenerateAst {
     writer.write(`${tab}accept(visitor) {}\n`)
     writer.write(`}\n\n`)
 
-    for (let row of typesArr) {
-			if (row == null) 
-				continue
+    typesArr.forEach(row => {
 			
 			writer.write(`class ${row.type} extends ${baseName} {\n`)
 	    // constructor
@@ -45,7 +43,8 @@ class GenerateAst {
 	    	writer.write(`${field}${i !== arr.length - 1 ? comma : ''}`)
 	    });
 	    writer.write(`) {\n`)
-
+      
+      writer.write(`${tab}${tab}super()\n`)
 	    row.fields.forEach(field => {
 	    	writer.write(`${tab}${tab}this.${field} = ${field}\n`)	
 	    })
@@ -59,10 +58,17 @@ class GenerateAst {
 	    
 	    // class end
 	    writer.write(`}\n\n`)
-    }
+	  })
 
-		writer.end()
-	}
+    // module exports
+    writer.write(`module.exports = {\n`)
+    typesArr.forEach((row, i, arr) => {
+      writer.write(`${tab}${tab}${row.type}${i !== arr.length - 1 ? comma : ''}\n`)
+    })
+    writer.write(`}`)
+
+    writer.end() 
+  }
 }
 
 GenerateAst.run()
