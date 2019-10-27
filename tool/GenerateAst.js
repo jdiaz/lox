@@ -41,7 +41,7 @@ class GenerateAst {
 	    writer.write(`${tab}constructor(`)
 	    row.fields.forEach((field, i, arr) => {
 	    	writer.write(`${field}${i !== arr.length - 1 ? comma : ''}`)
-	    });
+	    })
 	    writer.write(`) {\n`)
       
       writer.write(`${tab}${tab}super()\n`)
