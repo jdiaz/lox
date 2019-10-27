@@ -5,9 +5,9 @@ const TokenType = require('./TokenType')
 
 // Creates an unambiguous, if ugly, string representation of AST nodes.
 class AstPrinter {
-	print(expr) {
-		return expr.accept(this)
-	}
+  print(expr) {
+    return expr.accept(this)
+  }
 
   visitBinaryExpr(expr) {                  
     return this.parenthesize(expr.operator.lexeme, [expr.left, expr.right])
@@ -19,7 +19,7 @@ class AstPrinter {
   
   visitLiteralExpr(expr) {                
     if (expr.value == null)
-    	return 'nil'
+      return 'nil'
     return expr.value
   }                                                                
   
@@ -27,7 +27,7 @@ class AstPrinter {
     return this.parenthesize(expr.operator.lexeme, [expr.right])
   }
 
- 	parenthesize(name, exprs) {
+  parenthesize(name, exprs) {
     const strBuilder = []
     strBuilder.push(`(${name}`)
     exprs.forEach(expr => {                              
@@ -36,22 +36,22 @@ class AstPrinter {
     })                                
     strBuilder.push(')')
     return strBuilder.join('')
- 	}
+  }
 }
 
 function main() {
-	expr = new Expr.Binary(
-		new Expr.Unary(
-			new Token(TokenType.MINUS, '-', null, 1),
-			new Expr.Literal(123),
-		),
-		new Token(TokenType.STAR, '*', null, 1),
-		new Expr.Grouping(
-			new Expr.Literal(47.67)
-		)
-	)
+  expr = new Expr.Binary(
+    new Expr.Unary(
+      new Token(TokenType.MINUS, '-', null, 1),
+      new Expr.Literal(123),
+    ),
+    new Token(TokenType.STAR, '*', null, 1),
+    new Expr.Grouping(
+      new Expr.Literal(47.67)
+    )
+  )
 
-	console.log(new AstPrinter().print(expr))
+  console.log(new AstPrinter().print(expr))
 }
 
 main()
