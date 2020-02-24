@@ -29,7 +29,7 @@ class Lox {
       this._run(source)
 
       if (this.hadError)
-        System.exit(65)
+        process.exit(65)
     });
   }
 

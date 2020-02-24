@@ -28,8 +28,9 @@ function log(msg, level = Level.INFO, newline = null) {
   const processLevel = process.env.LEVEL != null ? process.env.LEVEL : null
   // Print log msg if level matches with process set environment
   // However, still show error msgs and cli prompt
-  if (!levelMatch(processLevel, level) && (level !== Level.INFO || level !== Level.ERROR))
-    return
+  // TODO: Fix causing no logs to be shown to std out
+  // if ((level !== Level.INFO || level !== Level.ERROR) && !levelMatch(processLevel, level))
+  //   return
 
   if (typeof msg !== 'string')
     msg = String(msg)

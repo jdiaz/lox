@@ -33,7 +33,7 @@ class AstPrinter {
     exprs.forEach(expr => {                              
       strBuilder.push(' ')
       strBuilder.push(expr.accept(this))
-    })                                
+    })                 
     strBuilder.push(')')
     return strBuilder.join('')
   }
