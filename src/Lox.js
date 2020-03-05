@@ -2,12 +2,14 @@ const fs = require('fs')
 const stdin = process.openStdin()
 const {log, level, logError} = require('./log')
 const Scanner = require('./Scanner')
+const Parser = require('./Parser')
+const AstPrinter = require('./AstPrinter')
 
 class Lox {
   
-  constructor() {
-    this.hadError = false
-  }
+  static hadError = false
+
+  constructor() {}
 
   main() {
     const args = process.argv
@@ -28,7 +30,7 @@ class Lox {
 
       this._run(source)
 
-      if (this.hadError)
+      if (Lox.hadError)
         process.exit(65)
     });
   }
@@ -44,11 +46,25 @@ class Lox {
   _run(source) {
     const sc = new Scanner(source)
     const tokens = sc.scanTokens()
+    const parser = new Parser(tokens)                   
+    const expression = parser.parse()
+    // Stop if there was a syntax error.                   
+    if (Lox.hadError)
+      return
 
-    for (const token of tokens) {
-      log(token.toString(), level.INFO, true)
-    }
+    log(new AstPrinter().print(expression), level.INFO, '\n');
   }
+
+  static error(token, message) {
+    if (token.tokenType == TokenType.EOF) {                          
+      logError(token.line, " at end", message);                   
+    } else {                                               
+      logError(token.line, " at '" + token.lexeme + "'", message);
+    }
+
+    Lox.hadError = true
+  }                                                       
+
 }
 
 module.exports = Lox;

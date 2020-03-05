@@ -5,6 +5,9 @@ const TokenType = require('./TokenType')
 
 // Creates an unambiguous, if ugly, string representation of AST nodes.
 class AstPrinter {
+  
+  constructor() {}
+
   print(expr) {
     return expr.accept(this)
   }
@@ -54,4 +57,4 @@ function main() {
   log(new AstPrinter().print(expr), Level.INFO, '\n')
 }
 
-main()
+module.exports = AstPrinter

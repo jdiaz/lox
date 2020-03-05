@@ -56,6 +56,7 @@ function levelMatch(strLevel, numLev) {
 }
 
 function logError(line, where, msg) {
+  console.log('l: ' + line + ' where: ' + where + ' msg: '+ msg)
   log(`[line ${line}] Error ${where}: ${msg}`, Level.ERROR, true)
 }
 
