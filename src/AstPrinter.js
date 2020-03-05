@@ -1,4 +1,4 @@
-const {log, level, logError} = require('./log')
+const {log, Level, logError} = require('./log')
 const Expr = require('./Expr')
 const Token = require('./Token')
 const TokenType = require('./TokenType')
@@ -51,7 +51,7 @@ function main() {
     )
   )
 
-  console.log(new AstPrinter().print(expr))
+  log(new AstPrinter().print(expr), Level.INFO, '\n')
 }
 
 main()
