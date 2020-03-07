@@ -3,12 +3,13 @@ const stdin = process.openStdin()
 const {log, level, logError} = require('./log')
 const Scanner = require('./Scanner')
 const Parser = require('./Parser')
+const TokenType = require('./TokenType')
 const AstPrinter = require('./AstPrinter')
+
+var hadError = false
 
 class Lox {
   
-  static hadError = false
-
   constructor() {}
 
   main() {
@@ -16,7 +17,7 @@ class Lox {
     if (args.length > 3) {
       log('Usage: jlox [script]', level.INFO, true);
       process.exit(64)
-    } else if (args.length == 3) {
+    } else if (args.length === 3) {
       this._runFile(args[2])
     } else {
       this._runPrompt()
@@ -30,7 +31,7 @@ class Lox {
 
       this._run(source)
 
-      if (Lox.hadError)
+      if (hadError)
         process.exit(65)
     });
   }
@@ -46,25 +47,25 @@ class Lox {
   _run(source) {
     const sc = new Scanner(source)
     const tokens = sc.scanTokens()
-    const parser = new Parser(tokens)                   
+    const parser = new Parser(tokens, Lox)                   
     const expression = parser.parse()
     // Stop if there was a syntax error.                   
-    if (Lox.hadError)
+    if (hadError)
       return
 
-    log(new AstPrinter().print(expression), level.INFO, '\n');
+    log(new AstPrinter().print(expression), level.INFO, true);
   }
 
   static error(token, message) {
-    if (token.tokenType == TokenType.EOF) {                          
-      logError(token.line, " at end", message);                   
-    } else {                                               
-      logError(token.line, " at '" + token.lexeme + "'", message);
+    if (token.tokenType === TokenType.EOF) {                      
+      logError(token.line, " at end", message)
+    } else {
+      logError(token.line, " at '" + token.lexeme + "'", message)
     }
-
-    Lox.hadError = true
-  }                                                       
+    
+    hadError = true
+  }
 
 }
 
-module.exports = Lox;
+module.exports = Lox

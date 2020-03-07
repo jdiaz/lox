@@ -1,6 +1,5 @@
 const TokenType = require('./TokenType')
 const Token = require('./Token')
-const Lox = require('./Lox')
 const Keywords = require('./Keywords')
 const {log, level, logError} = require('./log')
 
@@ -88,14 +87,14 @@ class Scanner {
         break
       case '\n':                                   
         this.line++                                    
-        break        
+        break
       default:
         if (this._isDigit(c)) {
           this._number()
         } else if (this._isAlpha(c)) {
           this._identifier()
         } else {
-          logError(this.line, '', 'Unexpected character.')
+          logError(this.line, '', `Unexpected character: ${c}`)
         }
         break
     }
@@ -108,7 +107,7 @@ class Scanner {
   }
 
   _peekNext() {
-    if (this.current + 1 >= this.source.length) 
+    if (this.current + 1 >= this.source.length)
       return '\0'
     return this.source.charAt(this.current + 1)
   }

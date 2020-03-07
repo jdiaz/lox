@@ -20,11 +20,11 @@ class AstPrinter {
     return this.parenthesize('group', [expr.expression])
   }                  
   
-  visitLiteralExpr(expr) {                
+  visitLiteralExpr(expr) {             
     if (expr.value == null)
       return 'nil'
     return expr.value
-  }                                                                
+  }                                                 
   
   visitUnaryExpr(expr) {                    
     return this.parenthesize(expr.operator.lexeme, [expr.right])
@@ -54,7 +54,7 @@ function main() {
     )
   )
 
-  log(new AstPrinter().print(expr), Level.INFO, '\n')
+  log(new AstPrinter().print(expr), Level.INFO, true)
 }
 
 module.exports = AstPrinter
