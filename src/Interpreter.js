@@ -31,13 +31,13 @@ class Interpreter /*implements Visitor<Object>*/{
 		switch (expr.operator.tokenType) {
 		  case TokenType.MINUS:
 		    this.checkNumberOperand(expr.operator, right)
-		    return -((right).toFixed())                  
+		    return -(right)             
 		  case TokenType.BANG:
         return !this.isTruthy(right) 
 		}                          
 
   	// Unreachable.                              
-  	return null;                                 
+  	return null                       
 	}               
 
   /*private*/
@@ -61,34 +61,34 @@ class Interpreter /*implements Visitor<Object>*/{
     switch (expr.operator.tokenType) {
       case TokenType.MINUS:
       	this.checkNumberOperands(expr.operator, left, right)
-        return (left).toFixed() - (right).toFixed()
+        return left - right
       case TokenType.PLUS:
         if (typeof(left) === 'number' && typeof(right) === 'number') {
-          return (left).toFixed() + (right).toFixed()
-        } 
+          return left + right
+        }
         if (typeof(left) === 'string' && typeof(right) === 'string') {
-          return ''+left + ''+right
+          return String(parseFloat(left) + parseFloat(right))
         }
         throw new RuntimeError(
         	expr.operator,
           'Operands must be two numbers or two strings.',
         )
       case TokenType.SLASH:
-        return (left).toFixed() / (right).toFixed()
+        return left / right
       case TokenType.STAR:
-        return (left).toFixed() * (right).toFixed()
+        return left * right
        case TokenType.GREATER:
         this.checkNumberOperands(expr.operator, left, right)               
-        return (left).toFixed() > (right).toFixed() 
+        return left > right 
       case TokenType.GREATER_EQUAL:
       	this.checkNumberOperands(expr.operator, left, right)
-        return (left).toFixed() >= (right).toFixed()
+        return left >= right
       case TokenType.LESS:
       	this.checkNumberOperands(expr.operator, left, right)
-        return (left).toFixed() < (right).toFixed() 
+        return left < right
       case TokenType.LESS_EQUAL:
       	this.checkNumberOperands(expr.operator, left, right)
-        return (left).toFixed() <= (right).toFixed()
+        return left <= right
       case TokenType.BANG_EQUAL:
       	return !this.isEqual(left, right)
       case TokenType.EQUAL_EQUAL:
@@ -100,10 +100,12 @@ class Interpreter /*implements Visitor<Object>*/{
   }
 
   isEqual(a, b) {
-  	if (a == null && b == null) return true
-  	if (a == null) return false
+  	if (a == null && b == null)
+  		return true
+  	if (a == null)
+  		return false
 
-  	return a == b
+  	return a === b
   }
 
   checkNumberOperand(operator, operand) {

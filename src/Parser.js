@@ -99,13 +99,15 @@ class Parser {
   }
 
   _primary() {
-    if (this._match(TokenType.FALSE)) return new Expr.Literal(false);
-    if (this._match(TokenType.TRUE)) return new Expr.Literal(true);
-    if (this._match(TokenType.NIL)) return new Expr.Literal(null);
+    if (this._match(TokenType.FALSE))
+      return new Expr.Literal(false);
+    if (this._match(TokenType.TRUE))
+      return new Expr.Literal(true);
+    if (this._match(TokenType.NIL))
+      return new Expr.Literal(null);
 
-    if (this._match(TokenType.NUMBER, TokenType.STRING)) {
+    if (this._match(TokenType.NUMBER, TokenType.STRING))
       return new Expr.Literal(this._previous().literal)
-    }
 
     if (this._match(TokenType.LEFT_PAREN)) {
       const expr = this._expression()
