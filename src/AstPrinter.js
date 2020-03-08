@@ -4,7 +4,14 @@ const Token = require('./Token')
 const TokenType = require('./TokenType')
 
 // Creates an unambiguous, if ugly, string representation of AST nodes.
-class AstPrinter {
+
+/*
+Recall:
+  interface Visitor<R> {
+    abstract <R> R accept(Visitor<R> visitor)
+  }
+*/
+class AstPrinter /*implements Visitor<String>*/ {
   
   constructor() {}
 

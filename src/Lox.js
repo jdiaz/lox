@@ -5,13 +5,13 @@ const Scanner = require('./Scanner')
 const Parser = require('./Parser')
 const TokenType = require('./TokenType')
 const AstPrinter = require('./AstPrinter')
+const Interpreter = require('./Interpreter')
 
 var hadError = false
+var hadRuntimeError = false
 
 class Lox {
   
-  constructor() {}
-
   main() {
     const args = process.argv
     if (args.length > 3) {
@@ -33,6 +33,8 @@ class Lox {
 
       if (hadError)
         process.exit(65)
+      if (hadRuntimeError)
+        process.exit(70)
     });
   }
 
@@ -49,21 +51,29 @@ class Lox {
     const tokens = sc.scanTokens()
     const parser = new Parser(tokens, Lox)                   
     const expression = parser.parse()
-    // Stop if there was a syntax error.                   
+    // Stop if there was a syntax error.                
     if (hadError)
       return
-
-    log(new AstPrinter().print(expression), level.INFO, true);
+    log(new AstPrinter().print(expression), level.WARNING, true);
+    const interpreter = new Interpreter()
+    interpreter.interpret(expression, Lox)
+    
   }
 
   static error(token, message) {
     if (token.tokenType === TokenType.EOF) {                      
-      logError(token.line, " at end", message)
+      logError(token.line, ' at end', message)
     } else {
-      logError(token.line, " at '" + token.lexeme + "'", message)
+      logError(token.line, ` at '${token.lexeme}'`, message)
     }
     
     hadError = true
+  }
+
+  static runtimeError(runtimeError) {
+    logError(runtimeError.token.line, ` at '${runtimeError.token.lexeme}'`, runtimeError.message)
+
+    hadRuntimeError = true
   }
 
 }

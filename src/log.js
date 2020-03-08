@@ -56,7 +56,7 @@ function levelMatch(strLevel, numLev) {
 }
 
 function logError(line, where, msg) {
-  log(`[line ${line}] Error ${where}: ${msg}`, Level.ERROR, true)
+  log(`[line ${line}] Error${where}: ${msg}`, Level.ERROR, true)
 }
 
 module.exports = {
