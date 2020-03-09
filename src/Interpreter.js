@@ -2,13 +2,15 @@ const Expr = require('./Expr')
 const TokenType = require('./TokenType')
 const RuntimeError = require('./RuntimeError')
 const {log, level, logError} = require('./log')
+const Environment = require('./Environment')
 
 class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
-	construct() {
+	constructor() {
+		this.environment = new Environment()
 	}
 
-	interpret(statements, Lox) {        
+	interpret(statements, Lox) {
     try {
     	for (let i = 0; i < statements.length; i++) {
     		this.execute(statements[i])
@@ -24,13 +26,20 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
   visitExpressionStmt(stmt) {
   	this.evaluate(stmt.expression)
-  	return
   }
 
   visitPrintStmt(stmt) {
   	const value = this.evaluate(stmt.expression)
   	log(this.stringify(value), level.INFO, true)
-  	return
+  }
+
+	visitVarStmt(/*Stmt.Var*/stmt) {
+    let value = null             
+    if (stmt.initializer != null) {        
+      value = this.evaluate(stmt.initializer) 
+    }
+
+    this.environment.define(stmt.name.lexeme, value)
   }
 
 	visitLiteralExpr(expr) {
@@ -52,9 +61,13 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
         return !this.isTruthy(right) 
 		}                          
 
-  	// Unreachable.                              
-  	return null                       
-	}               
+  	// Unreachable.
+  	return null           
+	}
+
+	visitVariableExpr(/*Expr.Variable*/expr) {
+    return this.environment.get(expr.name)
+  }             
 
   /*private*/
   evaluate(expr/*Expr.Subclass*/) {

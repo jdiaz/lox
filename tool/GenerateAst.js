@@ -8,7 +8,7 @@ class GenerateAst {
     
     const args = process.argv
     if (args.length !== 3) {
-      log('Usage: node GenerateAsk.js <output directory>')
+      log('Usage: node GenerateAsk.js <output directory>\n')
       process.exit(1)
     }
     
@@ -19,11 +19,13 @@ class GenerateAst {
       {type: 'Grouping', fields: ['expression']},
       {type: 'Literal', fields: ['value']},
       {type: 'Unary', fields: ['operator', 'right']},
+      {type: 'Variable', fields: ['name']},
     ])
 
     GenerateAst._defineAst(outputDir, 'Stmt', [
       {type: 'Expression', fields: ['expression']},
       {type: 'Print', fields: ['expression']},
+      {type: 'Var', fields: ['name', 'initializer']},
     ])
   }
 

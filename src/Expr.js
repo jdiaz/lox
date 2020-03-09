@@ -6,6 +6,7 @@
 		 R visitGroupingExpr(Visitor<Grouping> visitor)
 		 R visitLiteralExpr(Visitor<Literal> visitor)
 		 R visitUnaryExpr(Visitor<Unary> visitor)
+		 R visitVariableExpr(Visitor<Variable> visitor)
 	}
 */
 
@@ -65,9 +66,22 @@ class Unary extends Expr {
 	}
 }
 
+class Variable extends Expr {
+	constructor(name) {
+		super()
+		this.name = name
+	}
+
+	/* Variable accept(Visitor<Variable> visitor) */
+	accept(visitor) {
+		return visitor.visitVariableExpr(this)
+	}
+}
+
 module.exports = {
 	Binary,
 	Grouping,
 	Literal,
-	Unary
+	Unary,
+	Variable
 }

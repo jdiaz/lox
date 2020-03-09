@@ -26,12 +26,36 @@ class Parser {
 
   parse() {
     const statements = []
-    while (!this._isAtEnd()) {                        
-      statements.push(this._statement());              
+    while (!this._isAtEnd()) {
+      statements.push(this._declaration())          
     }
     return statements
   }
   
+  _declaration() {
+    try {
+
+      if (this._match(TokenType.VAR))
+        return this._varDeclaration()
+
+      return this._statement()
+
+    } catch (parseError) {
+      this.synchronize()
+      return null
+    }
+  }
+
+  _varDeclaration() {
+    const name = this._consume(TokenType.IDENTIFIER, 'Expect variable name.')
+    let initializer = null
+    if (this._match(TokenType.EQUAL))
+      initializer = this._expression()
+
+    this._consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+    return new Stmt.Var(name, initializer)
+  }
+
   _statement() {                  
     if (this._match(TokenType.PRINT))
       return this._printStatement()
@@ -45,8 +69,8 @@ class Parser {
     return new Stmt.Print(value)
   }
 
-  _expressionStatement() {                 
-    const expr = this._expression();                          
+  _expressionStatement() {
+    const expr = this._expression()
     this._consume(TokenType.SEMICOLON, "Expect ';' after expression.")
     return new Stmt.Expression(expr)
   }       
@@ -128,6 +152,9 @@ class Parser {
 
     if (this._match(TokenType.NUMBER, TokenType.STRING))
       return new Expr.Literal(this._previous().literal)
+
+    if (this._match(TokenType.IDENTIFIER))
+      return new Expr.Variable(this._previous())
 
     if (this._match(TokenType.LEFT_PAREN)) {
       const expr = this._expression()

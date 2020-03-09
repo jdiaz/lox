@@ -4,6 +4,7 @@
 	interface Visitor<R> {
 		 R visitExpressionStmt(Visitor<Expression> visitor)
 		 R visitPrintStmt(Visitor<Print> visitor)
+		 R visitVarStmt(Visitor<Var> visitor)
 	}
 */
 
@@ -36,7 +37,21 @@ class Print extends Stmt {
 	}
 }
 
+class Var extends Stmt {
+	constructor(name,initializer) {
+		super()
+		this.name = name
+		this.initializer = initializer
+	}
+
+	/* Var accept(Visitor<Var> visitor) */
+	accept(visitor) {
+		return visitor.visitVarStmt(this)
+	}
+}
+
 module.exports = {
 	Expression,
-	Print
+	Print,
+	Var
 }
