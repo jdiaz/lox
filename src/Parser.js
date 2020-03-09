@@ -13,6 +13,7 @@ primary        → NUMBER | STRING | "false" | "true" | "nil"
 */
 const {log, Level, logError} = require('./log')
 const Expr = require('./Expr')
+const Stmt = require('./Stmt')
 const TokenType = require('./TokenType')
 
 class Parser {
@@ -24,12 +25,31 @@ class Parser {
   }
 
   parse() {
-    try {                       
-      return this._expression()     
-    } catch (parseErr) {
-      return null
+    const statements = []
+    while (!this._isAtEnd()) {                        
+      statements.push(this._statement());              
     }
-  }     
+    return statements
+  }
+  
+  _statement() {                  
+    if (this._match(TokenType.PRINT))
+      return this._printStatement()
+
+    return this._expressionStatement()
+  }
+
+  _printStatement() {    
+    const value = this._expression()
+    this._consume(TokenType.SEMICOLON, "Expect ';' after value.")
+    return new Stmt.Print(value)
+  }
+
+  _expressionStatement() {                 
+    const expr = this._expression();                          
+    this._consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+    return new Stmt.Expression(expr)
+  }       
 
   _expression()/*: Expr */{
     return this._equality()
@@ -100,11 +120,11 @@ class Parser {
 
   _primary() {
     if (this._match(TokenType.FALSE))
-      return new Expr.Literal(false);
+      return new Expr.Literal(false)
     if (this._match(TokenType.TRUE))
-      return new Expr.Literal(true);
+      return new Expr.Literal(true)
     if (this._match(TokenType.NIL))
-      return new Expr.Literal(null);
+      return new Expr.Literal(null)
 
     if (this._match(TokenType.NUMBER, TokenType.STRING))
       return new Expr.Literal(this._previous().literal)

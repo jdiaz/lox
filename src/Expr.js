@@ -9,7 +9,9 @@
 	}
 */
 
-class Expr /*implements Visitor*/{
+/* abstract class */
+class Expr {
+	accept (visitor) {}
 }
 
 class Binary extends Expr {
@@ -64,8 +66,8 @@ class Unary extends Expr {
 }
 
 module.exports = {
-		Binary,
-		Grouping,
-		Literal,
-		Unary
+	Binary,
+	Grouping,
+	Literal,
+	Unary
 }

@@ -29,7 +29,7 @@ class Lox {
       if (err) 
         log(err, level.ERROR, true)
 
-      this._run(source)
+      this._run(String(source))
 
       if (hadError)
         process.exit(65)
@@ -47,17 +47,16 @@ class Lox {
   }
 
   _run(source) {
+    log(source)
     const sc = new Scanner(source)
     const tokens = sc.scanTokens()
     const parser = new Parser(tokens, Lox)                   
-    const expression = parser.parse()
+    const statements = parser.parse()
     // Stop if there was a syntax error.                
     if (hadError)
       return
-    log(new AstPrinter().print(expression), level.WARNING, true);
     const interpreter = new Interpreter()
-    interpreter.interpret(expression, Lox)
-    
+    interpreter.interpret(statements, Lox)
   }
 
   static error(token, message) {

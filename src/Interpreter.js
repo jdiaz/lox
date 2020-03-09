@@ -3,18 +3,34 @@ const TokenType = require('./TokenType')
 const RuntimeError = require('./RuntimeError')
 const {log, level, logError} = require('./log')
 
-class Interpreter /*implements Visitor<Object>*/{
+class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
 	construct() {
 	}
 
-	interpret(expression, Lox) {        
-    try {                                  
-      let value = this.evaluate(expression)
-      log(this.stringify(value), level.INFO, true)
+	interpret(statements, Lox) {        
+    try {
+    	for (let i = 0; i < statements.length; i++) {
+    		this.execute(statements[i])
+    	}
     } catch (err) {
       Lox.runtimeError(err)
     }
+  }
+
+  execute(stmt) {
+  	stmt.accept(this)
+  }
+
+  visitExpressionStmt(stmt) {
+  	this.evaluate(stmt.expression)
+  	return
+  }
+
+  visitPrintStmt(stmt) {
+  	const value = this.evaluate(stmt.expression)
+  	log(this.stringify(value), level.INFO, true)
+  	return
   }
 
 	visitLiteralExpr(expr) {

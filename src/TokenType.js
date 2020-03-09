@@ -40,6 +40,7 @@ module.exports = Object.freeze({
   'THIS': 35,
   'VAR': 36,
   'WHILE': 37,
+  'TRUE': 38,
 
-  'EOF': 38,
+  'EOF': 39,
 })
