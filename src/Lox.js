@@ -18,18 +18,18 @@ class Lox {
       log('Usage: jlox [script]', level.INFO, true);
       process.exit(64)
     } else if (args.length === 3) {
-      this._runFile(args[2])
+      this.runFile(args[2])
     } else {
       this._runPrompt()
     }
   }
 
-  _runFile(path) {
+  runFile(path) {
     fs.readFile(path, (err, source) => {
       if (err) 
         log(err, level.ERROR, true)
 
-      this._run(String(source))
+      this.run(String(source))
 
       if (hadError)
         process.exit(65)
@@ -38,15 +38,15 @@ class Lox {
     });
   }
 
-  _runPrompt() {
+  runPrompt() {
     log('>> ')
     stdin.addListener('data', data => {
-      this._run(String(data))
+      this.run(String(data))
       log('>> ')
     })
   }
 
-  _run(source) {
+  run(source) {
     log(source+'\n')
     const sc = new Scanner(source)
     const tokens = sc.scanTokens()
@@ -70,7 +70,10 @@ class Lox {
   }
 
   static runtimeError(runtimeError) {
-    logError(runtimeError.token.line, ` at '${runtimeError.token.lexeme}'`, runtimeError.message)
+    logError(
+      runtimeError.token.line, ` at '${runtimeError.token.lexeme}'`,
+      runtimeError.message,
+    )
 
     hadRuntimeError = true
   }

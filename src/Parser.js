@@ -26,19 +26,19 @@ class Parser {
 
   parse() {
     const statements = []
-    while (!this._isAtEnd()) {
-      statements.push(this._declaration())          
+    while (!this.isAtEnd()) {
+      statements.push(this.declaration())          
     }
     return statements
   }
   
-  _declaration() {
+  declaration() {
     try {
 
-      if (this._match(TokenType.VAR))
-        return this._varDeclaration()
+      if (this.match(TokenType.VAR))
+        return this.varDeclaration()
 
-      return this._statement()
+      return this.statement()
 
     } catch (parseError) {
       this.synchronize()
@@ -46,145 +46,145 @@ class Parser {
     }
   }
 
-  _varDeclaration() {
-    const name = this._consume(TokenType.IDENTIFIER, 'Expect variable name.')
+  varDeclaration() {
+    const name = this.consume(TokenType.IDENTIFIER, 'Expect variable name.')
     let initializer = null
-    if (this._match(TokenType.EQUAL))
-      initializer = this._expression()
+    if (this.match(TokenType.EQUAL))
+      initializer = this.expression()
 
-    this._consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+    this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
     return new Stmt.Var(name, initializer)
   }
 
-  _statement() {                  
-    if (this._match(TokenType.PRINT))
-      return this._printStatement()
+  statement() {                  
+    if (this.match(TokenType.PRINT))
+      return this.printStatement()
 
-    return this._expressionStatement()
+    return this.expressionStatement()
   }
 
-  _printStatement() {    
-    const value = this._expression()
-    this._consume(TokenType.SEMICOLON, "Expect ';' after value.")
+  printStatement() {    
+    const value = this.expression()
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.")
     return new Stmt.Print(value)
   }
 
-  _expressionStatement() {
-    const expr = this._expression()
-    this._consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+  expressionStatement() {
+    const expr = this.expression()
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
     return new Stmt.Expression(expr)
   }       
 
-  _expression()/*: Expr */{
-    return this._equality()
+  expression()/*: Expr */{
+    return this.equality()
   }
 
-  _equality() {
-    let expr = this._comparison()
+  equality() {
+    let expr = this.comparison()
 
-    while (this._match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
-      const operator = this._previous()
-      const rightExpr = this._comparison()
+    while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+      const operator = this.previous()
+      const rightExpr = this.comparison()
       expr = new Expr.Binary(expr, operator, rightExpr)
     }
 
     return expr
   }
 
-  _comparison() {
-    let expr = this._addition()
+  comparison() {
+    let expr = this.addition()
 
-    while (this._match(
+    while (this.match(
       TokenType.GREATER,
       TokenType.GREATER_EQUAL,
       TokenType.LESS,
       TokenType.LESS_EQUAL,
     )) {
-      const operator = this._previous()
-      const rightExpr = this._addition()
+      const operator = this.previous()
+      const rightExpr = this.addition()
       expr = new Expr.Binary(expr, operator, rightExpr)
     }
 
     return expr
   }
 
-  _addition() {
-    let expr = this._multiplication()
+  addition() {
+    let expr = this.multiplication()
 
-    while (this._match(TokenType.MINUS, TokenType.PLUS)) {
-      const operator = this._previous()
-      const rightExpr = this._multiplication()
+    while (this.match(TokenType.MINUS, TokenType.PLUS)) {
+      const operator = this.previous()
+      const rightExpr = this.multiplication()
       expr = new Expr.Binary(expr, operator, rightExpr)
     }
 
     return expr
   }
 
-  _multiplication() {
-    let expr = this._unirary()
+  multiplication() {
+    let expr = this.unirary()
 
-    while (this._match(TokenType.SLASH, TokenType.STAR)) {
-      const operator = this._previous()
-      const rightExpr = this._unirary()
+    while (this.match(TokenType.SLASH, TokenType.STAR)) {
+      const operator = this.previous()
+      const rightExpr = this.unirary()
       expr = new Expr.Binary(expr, operator, rightExpr)
     }
 
     return expr
   }
 
-  _unirary() {
-    if (this._match(TokenType.BANG, TokenType.MINUS)) {
-      const operator = this._previous()
-      const right = this._unirary()
+  unirary() {
+    if (this.match(TokenType.BANG, TokenType.MINUS)) {
+      const operator = this.previous()
+      const right = this.unirary()
       return new Expr.Unary(operator, right)
     }
 
-    return this._primary()
+    return this.primary()
   }
 
-  _primary() {
-    if (this._match(TokenType.FALSE))
+  primary() {
+    if (this.match(TokenType.FALSE))
       return new Expr.Literal(false)
-    if (this._match(TokenType.TRUE))
+    if (this.match(TokenType.TRUE))
       return new Expr.Literal(true)
-    if (this._match(TokenType.NIL))
+    if (this.match(TokenType.NIL))
       return new Expr.Literal(null)
 
-    if (this._match(TokenType.NUMBER, TokenType.STRING))
-      return new Expr.Literal(this._previous().literal)
+    if (this.match(TokenType.NUMBER, TokenType.STRING))
+      return new Expr.Literal(this.previous().literal)
 
-    if (this._match(TokenType.IDENTIFIER))
-      return new Expr.Variable(this._previous())
+    if (this.match(TokenType.IDENTIFIER))
+      return new Expr.Variable(this.previous())
 
-    if (this._match(TokenType.LEFT_PAREN)) {
-      const expr = this._expression()
-      this._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
+    if (this.match(TokenType.LEFT_PAREN)) {
+      const expr = this.expression()
+      this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
       return new Expr.Grouping(expr)
     }
 
-    throw this._error(this._peek(), "Expected expression.")
+    throw this.error(this.peek(), "Expected expression.")
   }
 
-  _consume(tokenType, message)/*Token*/{
-    if (this._check(tokenType))
-      return this._advance()
+  consume(tokenType, message)/*Token*/{
+    if (this.check(tokenType))
+      return this.advance()
 
-    throw this._error(this._peek(), message)
+    throw this.error(this.peek(), message)
   }
 
-   _error(token, message)/*ParseError*/{
+   error(token, message)/*ParseError*/{
     this.Lox.error(token, message)
     return new Error('ParseError')
   }
 
   synchronize() {                 
-    this._advance();
+    this.advance();
 
-    while (!this._isAtEnd()) {                       
-      if (this._previous().tokenType === TokenType.SEMICOLON)
+    while (!this.isAtEnd()) {                       
+      if (this.previous().tokenType === TokenType.SEMICOLON)
         return
 
-      switch (this._peek().tokenType) {   
+      switch (this.peek().tokenType) {   
         case TokenType.CLASS:
         case TokenType.FUN:
         case TokenType.VAR:
@@ -193,44 +193,44 @@ class Parser {
         case TokenType.WHILE:
         case TokenType.PRINT:                  
         case TokenType.RETURN:
-          return                 
+          return
       }                             
 
-      this._advance();                               
+      this.advance();                               
     }
   } 
 
-  _match(...tokenTypes) {
+  match(...tokenTypes) {
     for (let i = 0; i < tokenTypes.length; i++) {
-      if (this._check(tokenTypes[i])) {
-        this._advance()
+      if (this.check(tokenTypes[i])) {
+        this.advance()
         return true
       }
     }
     return false
   }
 
-  _check(tokenType) {
-    if (this._isAtEnd())
+  check(tokenType) {
+    if (this.isAtEnd())
       return false
-    return this._peek().tokenType === tokenType
+    return this.peek().tokenType === tokenType
   }
 
-  _advance() {
-    if (!this._isAtEnd())
+  advance() {
+    if (!this.isAtEnd())
       this.current++
-    return this._previous()
+    return this.previous()
   }
 
-  _isAtEnd() {
-    return this._peek().tokenType === TokenType.EOF
+  isAtEnd() {
+    return this.peek().tokenType === TokenType.EOF
   }
 
-  _peek() {
+  peek() {
     return this.tokens[this.current]
   }
 
-  _previous() {
+  previous() {
     return this.tokens[this.current - 1]
   }
 }
