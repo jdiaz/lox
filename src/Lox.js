@@ -47,7 +47,7 @@ class Lox {
   }
 
   run(source) {
-    log(source+'\n')
+    log(source, level.WARNING, true)
     const sc = new Scanner(source)
     const tokens = sc.scanTokens()
     const parser = new Parser(tokens, Lox)                   

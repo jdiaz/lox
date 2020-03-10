@@ -24,6 +24,23 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
   	stmt.accept(this)
   }
 
+  visitBlockStmt(stmt) {
+  	this.executeBlock(stmt.statements, new Environment(this.environment))
+  }
+
+  executeBlock(statements, enclosingEnvironment) {
+  	const previous = this.environment
+  	try {
+  		this.environment = enclosingEnvironment
+
+  		for (let i = 0; i < statements.length; i++) {
+  			this.execute(statements[i])
+  		}
+  	} finally {
+  		this.environment = previous
+  	}
+  }
+
   visitExpressionStmt(stmt) {
   	this.evaluate(stmt.expression)
   }
@@ -40,6 +57,13 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
     }
 
     this.environment.define(stmt.name.lexeme, value)
+  }
+
+  visitAssignExpr(expr) {
+  	const value = this.evaluate(expr.value)
+
+  	this.environment.assign(expr.name, value)
+  	return value
   }
 
 	visitLiteralExpr(expr) {
