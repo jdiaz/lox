@@ -17,3 +17,9 @@ var c = "global c";
 print a;
 print b;
 print c;
+
+if (1 > 0) {
+  print "global a from if";
+}
+
+print "hi" or 2;

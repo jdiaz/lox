@@ -15,6 +15,7 @@ class GenerateAst {
     const outputDir = args[2]
 
     GenerateAst._defineAst(outputDir,  'Expr', [
+      {type: 'Logical', fields: ['left', 'operator', 'right']},
       {type: 'Assign', fields: ['name', 'value']},
       {type: 'Binary', fields: ['left', 'operator', 'right']},
       {type: 'Grouping', fields: ['expression']},
@@ -24,6 +25,7 @@ class GenerateAst {
     ])
 
     GenerateAst._defineAst(outputDir, 'Stmt', [
+      {type: 'If', fields: ['condition', 'thenBranch', 'elseBranch']},
       {type: 'Block', fields: ['statements']},
       {type: 'Expression', fields: ['expression']},
       {type: 'Print', fields: ['expression']},

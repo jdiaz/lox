@@ -6,51 +6,60 @@ const Environment = require('./Environment')
 
 class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
-	constructor() {
-		this.environment = new Environment()
-	}
+  constructor() {
+    this.environment = new Environment()
+  }
 
-	interpret(statements, Lox) {
+  interpret(statements, Lox) {
     try {
-    	for (let i = 0; i < statements.length; i++) {
-    		this.execute(statements[i])
-    	}
+      for (let i = 0; i < statements.length; i++) {
+        this.execute(statements[i])
+      }
     } catch (err) {
       Lox.runtimeError(err)
     }
   }
 
   execute(stmt) {
-  	stmt.accept(this)
+    stmt.accept(this)
   }
 
   visitBlockStmt(stmt) {
-  	this.executeBlock(stmt.statements, new Environment(this.environment))
+    this.executeBlock(stmt.statements, new Environment(this.environment))
   }
 
   executeBlock(statements, enclosingEnvironment) {
-  	const previous = this.environment
-  	try {
-  		this.environment = enclosingEnvironment
+    const previous = this.environment
+    try {
+      this.environment = enclosingEnvironment
 
-  		for (let i = 0; i < statements.length; i++) {
-  			this.execute(statements[i])
-  		}
-  	} finally {
-  		this.environment = previous
-  	}
+      for (let i = 0; i < statements.length; i++) {
+        this.execute(statements[i])
+      }
+    } finally {
+      this.environment = previous
+    }
+  }
+
+  visitIfStmt(stmt) {
+    if (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.thenBranch)
+    } else if (stmt.elseBranch != null) {
+      this.execute(stmt.elseBranch)
+    }
+    return null
   }
 
   visitExpressionStmt(stmt) {
-  	this.evaluate(stmt.expression)
+    this.evaluate(stmt.expression)
   }
 
   visitPrintStmt(stmt) {
-  	const value = this.evaluate(stmt.expression)
-  	log(this.stringify(value), level.INFO, true)
+    const value = this.evaluate(stmt.expression)
+    log(this.stringify(value), level.INFO, true)
   }
 
-	visitVarStmt(/*Stmt.Var*/stmt) {
+  visitVarStmt(/*Stmt.Var*/stmt) {
     let value = null             
     if (stmt.initializer != null) {        
       value = this.evaluate(stmt.initializer) 
@@ -59,37 +68,51 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
     this.environment.define(stmt.name.lexeme, value)
   }
 
-  visitAssignExpr(expr) {
-  	const value = this.evaluate(expr.value)
+  visitLogicalExpr(expr) {
+    const left = this.evaluate(expr.left)
 
-  	this.environment.assign(expr.name, value)
-  	return value
+    if (expr.operator.tokenType === TokenType.OR) {
+      if (this.isTruthy(left))
+        return left
+    } else {
+      if (!this.isTruthy(left))
+        return left
+    }
+
+    return this.evaluate(expr.right)
   }
 
-	visitLiteralExpr(expr) {
-		return expr.value
-	}
+  visitAssignExpr(expr) {
+    const value = this.evaluate(expr.value)
 
-	visitGroupingExpr(expr/*Expr.Grouping*/) {
+    this.environment.assign(expr.name, value)
+    return value
+  }
+
+  visitLiteralExpr(expr) {
+    return expr.value
+  }
+
+  visitGroupingExpr(expr/*Expr.Grouping*/) {
     return this.evaluate(expr.expression)
   }
 
-	visitUnaryExpr(expr) {
+  visitUnaryExpr(expr) {
     let right = this.evaluate(expr.right)
 
-		switch (expr.operator.tokenType) {
-		  case TokenType.MINUS:
-		    this.checkNumberOperand(expr.operator, right)
-		    return -(right)             
-		  case TokenType.BANG:
+    switch (expr.operator.tokenType) {
+      case TokenType.MINUS:
+        this.checkNumberOperand(expr.operator, right)
+        return -(right)             
+      case TokenType.BANG:
         return !this.isTruthy(right) 
-		}                          
+    }                          
 
-  	// Unreachable.
-  	return null           
-	}
+    // Unreachable.
+    return null           
+  }
 
-	visitVariableExpr(/*Expr.Variable*/expr) {
+  visitVariableExpr(/*Expr.Variable*/expr) {
     return this.environment.get(expr.name)
   }             
 
@@ -99,11 +122,11 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
   }
 
   /*private*/
- 	isTruthy(object) {               
+  isTruthy(object) {               
     if (object == null/* or undefined*/)
-    	return false
+      return false
     if (typeof(object) === 'boolean')
-    	return object;
+      return object;
     return true
   }
 
@@ -113,7 +136,7 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
     switch (expr.operator.tokenType) {
       case TokenType.MINUS:
-      	this.checkNumberOperands(expr.operator, left, right)
+        this.checkNumberOperands(expr.operator, left, right)
         return left - right
       case TokenType.PLUS:
         if (typeof(left) === 'number' && typeof(right) === 'number') {
@@ -123,7 +146,7 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
           return String(parseFloat(left) + parseFloat(right))
         }
         throw new RuntimeError(
-        	expr.operator,
+          expr.operator,
           'Operands must be two numbers or two strings.',
         )
       case TokenType.SLASH:
@@ -134,18 +157,18 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
         this.checkNumberOperands(expr.operator, left, right)               
         return left > right 
       case TokenType.GREATER_EQUAL:
-      	this.checkNumberOperands(expr.operator, left, right)
+        this.checkNumberOperands(expr.operator, left, right)
         return left >= right
       case TokenType.LESS:
-      	this.checkNumberOperands(expr.operator, left, right)
+        this.checkNumberOperands(expr.operator, left, right)
         return left < right
       case TokenType.LESS_EQUAL:
-      	this.checkNumberOperands(expr.operator, left, right)
+        this.checkNumberOperands(expr.operator, left, right)
         return left <= right
       case TokenType.BANG_EQUAL:
-      	return !this.isEqual(left, right)
+        return !this.isEqual(left, right)
       case TokenType.EQUAL_EQUAL:
-      	return this.isEqual(left, right)
+        return this.isEqual(left, right)
     }
 
     // Unreachable.
@@ -153,29 +176,29 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
   }
 
   isEqual(a, b) {
-  	if (a == null && b == null)
-  		return true
-  	if (a == null)
-  		return false
+    if (a == null && b == null)
+      return true
+    if (a == null)
+      return false
 
-  	return a === b
+    return a === b
   }
 
   checkNumberOperand(operator, operand) {
     if (typeof(operand) === 'number')
-    	return
+      return
     throw new RuntimeError(operator, 'Operand must be a number.')
   }
 
   checkNumberOperands(operator, leftOperand, rightOperand) {
-  	if (typeof(leftOperand) === 'number' && typeof(rightOperand) === 'number')
-  		return
+    if (typeof(leftOperand) === 'number' && typeof(rightOperand) === 'number')
+      return
     throw new RuntimeError(operator, 'Operands must be numbers.')
   }
 
   stringify(object) {
     if (object == null) 
-    	return 'nil'
+      return 'nil'
 
     // Hack. Work around JS adding ".0" to integer-valued floats.
     if (typeof(object) === 'number') {                                 

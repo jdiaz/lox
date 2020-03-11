@@ -56,7 +56,10 @@ class Parser {
     return new Stmt.Var(name, initializer)
   }
 
-  statement() {                  
+  statement() {
+    if (this.match(TokenType.IF))
+      return this.ifStatement()
+
     if (this.match(TokenType.PRINT))
       return this.printStatement()
 
@@ -64,6 +67,44 @@ class Parser {
       return new Stmt.Block(this.block())
 
     return this.expressionStatement()
+  }
+
+  or() {
+    let expr = this.and()
+
+    while (this.match(TokenType.OR)) {
+      const operator = this.previous()
+      const right = this.and()
+      expr = new Expr.Logical(expr, operator, right)
+    }
+
+    return expr
+  }
+
+  and() {                               
+    let expr = this.equality()
+
+    while (this.match(TokenType.AND)) {
+      const operator = this.previous()
+      const right = this.equality()                       
+      expr = new Expr.Logical(expr, operator, right)
+    }                                                
+
+    return expr                 
+  }          
+
+  ifStatement() {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+    const condition = this.expression()
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'if'.")
+
+    const thenBranch = this.statement()
+    let elseBranch = null
+    if (this.match(TokenType.ELSE)) {
+      elseBranch = this.statement()
+    }
+
+    return new Stmt.If(condition, thenBranch, elseBranch)
   }
 
   block() {
@@ -94,7 +135,7 @@ class Parser {
   }
 
   assignment() {
-    const expr = this.equality()
+    const expr = this.or()
 
     if (this.match(TokenType.EQUAL)) {
       const equals = this.previous()
