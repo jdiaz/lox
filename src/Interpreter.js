@@ -16,12 +16,20 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
         this.execute(statements[i])
       }
     } catch (err) {
+      console.log(err)
+      console.trace()
       Lox.runtimeError(err)
     }
   }
 
   execute(stmt) {
     stmt.accept(this)
+  }
+
+  visitWhileStmt(stmt) {
+    while (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.body)
+    }
   }
 
   visitBlockStmt(stmt) {
@@ -142,8 +150,16 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
         if (typeof(left) === 'number' && typeof(right) === 'number') {
           return left + right
         }
-        if (typeof(left) === 'string' && typeof(right) === 'string') {
-          return String(parseFloat(left) + parseFloat(right))
+        if (typeof(left) === 'string' || typeof(right) === 'string') {
+          let lNum = left
+          let rNum = right
+          if (!isNaN(Number(left))) {
+            lNum = parseFloat(left)
+          }
+          if (!isNaN(Number(right))){
+            rNum = parseFloat(right)
+          }
+          return lNum + rNum
         }
         throw new RuntimeError(
           expr.operator,
