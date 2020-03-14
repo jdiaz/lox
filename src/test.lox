@@ -32,3 +32,7 @@ print "3.6" + "2.4";
 print "Attach" + "5.5";
 
 print "6.5" + "Posfix";
+
+for (var i = 0; i < 10; i = i + 1) {
+  print "i=" + i;
+}
