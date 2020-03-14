@@ -18,8 +18,17 @@ print a;
 print b;
 print c;
 
-if (1 > 0) {
-  print "global a from if";
+var count = 5;
+
+while (count > 0) {
+    print "count " + "bob";
+    count = count - 1;
 }
 
 print "hi" or 2;
+
+print "3.6" + "2.4";
+
+print "Attach" + "5.5";
+
+print "6.5" + "Posfix";
