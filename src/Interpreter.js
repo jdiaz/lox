@@ -3,11 +3,20 @@ const TokenType = require('./TokenType')
 const RuntimeError = require('./RuntimeError')
 const {log, level, logError} = require('./log')
 const Environment = require('./Environment')
+const LoxCallable = require('./LoxCallable')
+const LoxFunction = require('./LoxFunction')
+const NativeFunction = require('./NativeFunction')
 
 class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
   constructor() {
-    this.environment = new Environment()
+    this.globals = new Environment()
+    this.environment = this.globals;
+
+    this.globals.define(
+      'clock',
+      new NativeFunction(0, () => new Date.now() / 1000),
+    )
   }
 
   interpret(statements, Lox) {
@@ -17,7 +26,6 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
       }
     } catch (err) {
       console.log(err)
-      console.trace()
       Lox.runtimeError(err)
     }
   }
@@ -134,8 +142,35 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
     if (object == null/* or undefined*/)
       return false
     if (typeof(object) === 'boolean')
-      return object;
+      return object
     return true
+  }
+
+  visitCallExpr(/*Expr.Call*/expr) {
+    const callee = this.evaluate(expr.callee)
+    const args = []
+    for (let i = 0; i < expr.args.length; i++) {
+      args.push(this.evaluate(expr.args[i]))
+    }
+    if (!(callee instanceof LoxCallable)) {
+      throw new RuntimeError(
+        expr.paren,
+        'Can only call functions and classes.',
+      )
+    }
+
+    if (args.length !== callee.arity()) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${callee.arity()} arguments but got ${args.length}.`,
+      )
+    }
+    return callee.call(this, args)
+  }
+
+  visitFunctionStmt(/*Stmt.Function*/stmt) {
+    const func = new LoxFunction(stmt)
+    this.environment.define(stmt.name.lexeme, func)
   }
 
   visitBinaryExpr(/*Expr.Binary*/expr) {

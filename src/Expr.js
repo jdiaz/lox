@@ -9,6 +9,7 @@
 		 R visitLiteralExpr(Visitor<Literal> visitor)
 		 R visitUnaryExpr(Visitor<Unary> visitor)
 		 R visitVariableExpr(Visitor<Variable> visitor)
+		 R visitCallExpr(Visitor<Call> visitor)
 	}
 */
 
@@ -107,6 +108,20 @@ class Variable extends Expr {
 	}
 }
 
+class Call extends Expr {
+	constructor(callee,paren,args) {
+		super()
+		this.callee = callee
+		this.paren = paren
+		this.args = args
+	}
+
+	/* Call accept(Visitor<Call> visitor) */
+	accept(visitor) {
+		return visitor.visitCallExpr(this)
+	}
+}
+
 module.exports = {
 	Logical,
 	Assign,
@@ -114,5 +129,6 @@ module.exports = {
 	Grouping,
 	Literal,
 	Unary,
-	Variable
+	Variable,
+	Call
 }

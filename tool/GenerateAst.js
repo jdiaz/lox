@@ -22,9 +22,11 @@ class GenerateAst {
       {class: 'Literal', fields: ['value']},
       {class: 'Unary', fields: ['operator', 'right']},
       {class: 'Variable', fields: ['name']},
+      {class: 'Call', fields: ['callee', 'paren', 'args']},
     ])
 
     GenerateAst._defineAst(outputDir, 'Stmt', [
+      {class: 'Function', fields: ['name', 'params', 'body']},
       {class: 'While', fields: ['condition', 'body']},
       {class: 'If', fields: ['condition', 'thenBranch', 'elseBranch']},
       {class: 'Block', fields: ['statements']},

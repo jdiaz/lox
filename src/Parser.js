@@ -16,6 +16,8 @@ const Expr = require('./Expr')
 const Stmt = require('./Stmt')
 const TokenType = require('./TokenType')
 
+const ARGUMENT_COUNT_LIMIT = 255
+
 class Parser {
 
   constructor(tokens, lox) {
@@ -34,6 +36,8 @@ class Parser {
   
   declaration() {
     try {
+      if (this.match(TokenType.FUN))
+        return this.func('function')
 
       if (this.match(TokenType.VAR))
         return this.varDeclaration()
@@ -44,6 +48,31 @@ class Parser {
       this.synchronize()
       return null
     }
+  }
+
+  func(/*string*/kind) {
+    const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`)
+    this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`)
+    const parameters = []
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (parameters.length >= ARGUMENT_COUNT_LIMIT) {
+          this.error(
+            this.peek(),
+            `Cannot have more than ${ARGUMENT_COUNT_LIMIT} parameters.`,
+          )
+        }
+
+        parameters.push(
+          this.consume(TokenType.IDENTIFIER, 'Expect parameter name.'),
+        )
+      } while (this.match(TokenType.COMMA))
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`)
+    const body = this.block()
+    return new Stmt.Function(name, parameters, body)
   }
 
   varDeclaration() {
@@ -268,7 +297,43 @@ class Parser {
       return new Expr.Unary(operator, right)
     }
 
-    return this.primary()
+    return this.call()
+  }
+
+  call() {
+    let expr = this.primary()
+
+    while (true) {
+      if (this.match(TokenType.LEFT_PAREN)) {
+        expr = this.finishCall(expr)
+      } else {
+        break
+      }
+    }
+
+    return expr
+  }
+
+  finishCall(/*Expr*/callee) {
+    const args = []
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (args.length >= ARGUMENT_COUNT_LIMIT) {
+          this.error(
+            this.peek(),
+            `Cannot have more than ${ARGUMENT_COUNT_LIMIT} arguments.`,
+          )
+        }
+        args.push(this.expression())
+      } while (this.match(TokenType.COMMA))
+    }
+
+    const paren = this.consume(
+      TokenType.RIGHT_PAREN,
+      "Expect ')' after aguments.",
+    )
+
+    return new Expr.Call(callee, paren, args)
   }
 
   primary() {

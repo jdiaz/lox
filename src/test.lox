@@ -36,3 +36,9 @@ print "6.5" + "Posfix";
 for (var i = 0; i < 10; i = i + 1) {
   print "i=" + i;
 }
+
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last +"!";
+}
+
+sayHi("Dear", "Reader");
