@@ -33,6 +33,7 @@ class GenerateAst {
       {class: 'Expression', fields: ['expression']},
       {class: 'Print', fields: ['expression']},
       {class: 'Var', fields: ['name', 'initializer']},
+      {class: 'Return', fields: ['keyword', 'value']},
     ])
   }
 

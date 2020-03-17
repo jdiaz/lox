@@ -4,13 +4,14 @@ const Environment = require('./Environment')
 
 class LoxFunction extends LoxCallable {
 
-  constructor(/*Stmt.Function*/declaration) {
+  constructor(/*Stmt.Function*/declaration, /*Environment*/closure) {
     super()
     this.declaration = declaration
+    this.closure = closure
   }
 
   call(interpreter, args) {
-    const environment = new Environment(interpreter.globals)
+    const environment = new Environment(this.closure)
     for (let i = 0; i < this.declaration.params.length; i++) {
       environment.define(
         this.declaration.params[i].lexeme,
@@ -18,15 +19,15 @@ class LoxFunction extends LoxCallable {
       )
     }
 
-    //try {
-    interpreter.executeBlock(this.declaration.body, environment)  
-    // } catch (err) {
-    //   if (err instanceof Return) {
-    //     return err.value
-    //   } else {
-    //     throw err
-    //   }
-    // }
+    try {
+      interpreter.executeBlock(this.declaration.body, environment)  
+    } catch (err) {
+      if (err instanceof Return) {
+        return err.value
+      } else {
+        throw err
+      }
+    }
 
     return null
   }

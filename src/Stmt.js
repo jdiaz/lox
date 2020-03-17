@@ -9,6 +9,7 @@
 		 R visitExpressionStmt(Visitor<Expression> visitor)
 		 R visitPrintStmt(Visitor<Print> visitor)
 		 R visitVarStmt(Visitor<Var> visitor)
+		 R visitReturnStmt(Visitor<Return> visitor)
 	}
 */
 
@@ -107,6 +108,19 @@ class Var extends Stmt {
 	}
 }
 
+class Return extends Stmt {
+	constructor(keyword,value) {
+		super()
+		this.keyword = keyword
+		this.value = value
+	}
+
+	/* Return accept(Visitor<Return> visitor) */
+	accept(visitor) {
+		return visitor.visitReturnStmt(this)
+	}
+}
+
 module.exports = {
 	Function,
 	While,
@@ -114,5 +128,6 @@ module.exports = {
 	Block,
 	Expression,
 	Print,
-	Var
+	Var,
+	Return
 }

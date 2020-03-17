@@ -6,6 +6,7 @@ const Environment = require('./Environment')
 const LoxCallable = require('./LoxCallable')
 const LoxFunction = require('./LoxFunction')
 const NativeFunction = require('./NativeFunction')
+const Return = require('./Return')
 
 class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
@@ -32,6 +33,14 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
 
   execute(stmt) {
     stmt.accept(this)
+  }
+
+  visitReturnStmt(stmt) {
+    let value = null
+    if (stmt.value != null) 
+      value = this.evaluate(stmt.value)
+
+    throw new Return(value)
   }
 
   visitWhileStmt(stmt) {
@@ -169,7 +178,7 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
   }
 
   visitFunctionStmt(/*Stmt.Function*/stmt) {
-    const func = new LoxFunction(stmt)
+    const func = new LoxFunction(stmt, this.environment)
     this.environment.define(stmt.name.lexeme, func)
   }
 

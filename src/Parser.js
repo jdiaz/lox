@@ -86,6 +86,9 @@ class Parser {
   }
 
   statement() {
+    if (this.match(TokenType.RETURN))
+      return this.returnStatement()
+
     if (this.match(TokenType.FOR))
       return this.forStatement()
 
@@ -102,6 +105,17 @@ class Parser {
       return new Stmt.Block(this.block())
 
     return this.expressionStatement()
+  }
+
+  returnStatement() {
+    const keyword = this.previous()
+    let value = null
+    if (!this.check(TokenType.SEMICOLON)) {
+      value = this.expression()
+    }
+
+    this.consume(TokenType.SEMICOLON, "Expect ';' after return value")
+    return new Stmt.Return(keyword, value)
   }
 
   forStatement() {
