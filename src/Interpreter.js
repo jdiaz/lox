@@ -185,13 +185,15 @@ class Interpreter/*implements Visitor<Object>, Stmt.Visitor<Void>*/{
         if (typeof(left) === 'number' && typeof(right) === 'number') {
           return left + right
         }
+        console.log('left: ' +left);
+        console.log("right: " +right);
         if (typeof(left) === 'string' || typeof(right) === 'string') {
           let lNum = left
           let rNum = right
-          if (!isNaN(Number(left))) {
+          if (left !== ' ' && !isNaN(Number(left))) {
             lNum = parseFloat(left)
           }
-          if (!isNaN(Number(right))){
+          if (right !== ' ' &&  !isNaN(Number(right))) {
             rNum = parseFloat(right)
           }
           return lNum + rNum
